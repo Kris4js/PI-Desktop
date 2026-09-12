@@ -111,11 +111,11 @@ test("the host no longer offers Files or Browser as built-in tools", () => {
   assert.match(panelSource, /activeTab\?\.kind === "review"/);
 });
 
-test("Review still opens itself from workspace edit artifacts", () => {
-  // Removing the launcher entry must not remove the way Review appears at all.
+test("Review is reachable from the panel launcher, not from a workspace edit", () => {
+  // Removing the automatic open must not remove the launcher row.
   const storeSource = read("src/stores/app-store.ts");
-  assert.match(storeSource, /shouldOpenReviewArtifact\(\{/);
-  assert.match(storeSource, /toolWorkPanelTab\("review"\)/);
+  assert.match(panelSource, /toolWorkPanelTab\("review"\)/);
+  assert.doesNotMatch(storeSource, /shouldOpenReviewArtifact|toolWorkPanelTab/);
 });
 
 test("Browser ships as an ordinary plugin over the public CDP API", () => {

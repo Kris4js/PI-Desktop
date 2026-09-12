@@ -394,30 +394,34 @@ test("built-in terminal is absent while the work panel keeps its other surfaces"
   assert.doesNotMatch(transcriptSource, /openTerminal|terminalArtifact|chat\.openTerminal/);
 });
 
-test("workspace artifacts attach review to their originating session", () => {
-  const artifactIndex = storeSource.indexOf("shouldOpenReviewArtifact({");
-  const openReviewMatch = storeSource.match(
-    /get\(\)\.openWorkPanelTabForSession\(\s*envelope\.sessionId,\s*toolWorkPanelTab\("review"\),?\s*\)/,
+test("workspace edits record review evidence without opening the panel", () => {
+  const toolEndBlock =
+    storeSource.match(
+      /\} else if \(event\.type === "tool_end"\) \{[\s\S]*?\n    \}\n/,
+    )?.[0] ?? "";
+  assert.ok(toolEndBlock, "the tool_end handler exists");
+  // The completion side effects stay: pending permission and ask state is
+  // cleared for that tool call, and no panel resource is created, activated,
+  // or revealed. Review data travels with its message-owned inline card.
+  assert.match(toolEndBlock, /removePermissionForToolCall/);
+  assert.match(toolEndBlock, /removeAskForToolCall/);
+  assert.doesNotMatch(
+    toolEndBlock,
+    /openWorkPanelTabForSession|toolWorkPanelTab|workPanelOpen/,
   );
-  const openReviewIndex = openReviewMatch?.index ?? -1;
+  assert.doesNotMatch(storeSource, /shouldOpenReviewArtifact/);
+  // Tool lifecycle state is still scoped before the cross-session gate, so a
+  // background edit cannot reach the visible session's panel.
+  const toolEndIndex = storeSource.indexOf(
+    '} else if (event.type === "tool_end") {',
+  );
   const gateIndex = storeSource.indexOf(
     "if (envelope.sessionId !== get().activeSessionId)",
   );
-  assert.ok(artifactIndex > -1, "workspace artifact gate exists");
-  assert.ok(openReviewIndex > artifactIndex, "review artifact records its session tab");
+  assert.ok(toolEndIndex > -1, "tool_end handling exists");
   assert.ok(gateIndex > -1, "cross-session gate exists");
-  assert.ok(
-    openReviewIndex < gateIndex,
-    "background artifacts must be recorded before the cross-session early-return",
-  );
-  assert.match(
-    storeSource,
-    /shouldOpenReviewArtifact\(\{[\s\S]*toolName,[\s\S]*isError:\s*event\.isError,[\s\S]*result:\s*event\.result/s,
-  );
-  assert.doesNotMatch(
-    storeSource.match(/shouldOpenReviewArtifact\(\{[\s\S]*?\}\)/)?.[0] ?? "",
-    /activeSessionId|sessionId/,
-  );
+  assert.ok(toolEndIndex < gateIndex, "tool state is scoped before the gate");
+  assert.match(storeSource, /workPanelContexts:\s*Record<string, WorkPanelContext>/);
 });
 
 test("work panel context is retained by session instead of cleared on selection", () => {

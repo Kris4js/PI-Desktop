@@ -148,8 +148,9 @@ writes results to workspace memory/config — a form disguised as a chat.
 ### 3.7 Artifacts view (from 我的文件)
 Sessions produce files the user later can't find without scrolling the
 transcript. **Adopted first step in D128**: clicking a file artifact creates a
-path-keyed, closeable work-panel tab, and successful workspace Write/Edit
-artifacts open Review. **Adopted in D179**: the transcript also places a
+path-keyed, closeable work-panel tab. A successful
+workspace Write/Edit no longer opens Review by itself; the change reaches the
+user through the message-scoped card. **Adopted in D179**: the transcript also places a
 message-scoped review card directly after each successful file mutation; its
 status, +/− totals, and expandable hunks stay attached to that tool row rather
 than becoming a global footer entry. These renderer tabs and cards are

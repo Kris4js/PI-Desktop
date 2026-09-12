@@ -439,10 +439,11 @@ may be retained while exactly one workspace supplies the visible shell context.
   internal flex allocation; native window bounds remain unchanged. The inner
   divider updates the renderer-owned panel target between 244px and 720px,
   while native window edges resize only the fixed application window (ADR 0151).
-- A successful workspace Write/Edit creates or activates Review in its
-  originating session. Failed and scratch writes do not. Background-session
-  artifacts update only their retained context and never open, activate, resize,
-  focus, or change the visible panel.
+- A successful workspace Write/Edit opens no panel resource by itself: the
+  change stays on its message-owned inline card, and the Review tab opens only
+  from the New launcher's Review row. Failed, denied, and scratch writes record
+  no evidence. Background-session artifacts update only their retained context
+  and never open, activate, resize, focus, or change the visible panel.
 - Each successful workspace Write/Edit tool result carries one durable review
   snapshot. Its compact InlineReviewCard is rendered in the same activity
   disclosure, immediately after its tool row; it is never moved to the
@@ -457,8 +458,8 @@ may be retained while exactly one workspace supplies the visible shell context.
   denied, and unstructured results do not render a card. A background
   session's card remains with its own transcript and becomes visible only
   after that session is selected; its event never renders in the currently
-  visible session. Successful workspace artifacts may still create or
-  activate the singleton Review tab.
+  visible session. Successful workspace edits never create, activate, or
+  reveal a Review tab in any session.
 - Each session retains `{open, tabs, activeTabId, browserResource}` in renderer
   memory. Selecting another session swaps the visible context atomically and
   switching back restores it; selecting a workspace without an active

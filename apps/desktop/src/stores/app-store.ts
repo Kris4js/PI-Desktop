@@ -111,9 +111,7 @@ import {
   newWorkPanelTab,
   replaceWorkPanelTabState,
   sanitizeWorkPanelTabsState,
-  shouldOpenReviewArtifact,
   switchWorkPanelContextState,
-  toolWorkPanelTab,
   browserPluginTab,
   type WorkPanelContext,
   type WorkPanelTab,
@@ -3787,10 +3785,10 @@ export const useAppStore = create<AppState>((set, get) => ({
         void get().refreshQueuedPrompts(envelope.sessionId);
       }
     }
-    // Any session's workspace mutation invalidates the review diff; this
-    // must precede the cross-session early-return below.
-    // Observe tool lifecycle events before the cross-session early return so
-    // review artifacts remain scoped to their originating session.
+    // Tool lifecycle events are observed before the cross-session early return
+    // so every session's started-call cache, pending permissions, and pending
+    // asks stay scoped. A workspace edit records no panel resource by itself:
+    // Review data travels with its transcript message and opens on user action.
     if (event.type === "tool_start") {
       if (toolStartsByCallId.size >= TOOL_NAME_CACHE_LIMIT) {
         const oldest = toolStartsByCallId.keys().next().value;
@@ -3806,7 +3804,6 @@ export const useAppStore = create<AppState>((set, get) => ({
         ...(envelope.agentName ? { agentName: envelope.agentName } : {}),
       });
     } else if (event.type === "tool_end") {
-      const toolName = toolStartsByCallId.get(event.toolCallId)?.toolName;
       set((state) => {
         const pendingPermissions = removePermissionForToolCall(
           state.pendingPermissions,
@@ -3823,17 +3820,6 @@ export const useAppStore = create<AppState>((set, get) => ({
           ? {}
           : { pendingPermissions, pendingAsks };
       });
-      const reviewArtifact = shouldOpenReviewArtifact({
-        toolName,
-        isError: event.isError,
-        result: event.result,
-      });
-      if (reviewArtifact) {
-        get().openWorkPanelTabForSession(
-          envelope.sessionId,
-          toolWorkPanelTab("review"),
-        );
-      }
     }
     // A checkpoint installs on whichever session produced it, active or not,
     // and its rows must survive until that session is next opened.

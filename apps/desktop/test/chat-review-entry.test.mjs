@@ -172,10 +172,9 @@ test("chat renders one message-owned card immediately after its tool row", () =>
     storeSource,
     /rollbackWorkspaceChange:[\s\S]*api\.workspaceReviewRollback[\s\S]*withReviewChangeState/,
   );
-  assert.match(
-    storeSource,
-    /const reviewArtifact = shouldOpenReviewArtifact\([\s\S]*if \(reviewArtifact\)[\s\S]*openWorkPanelTabForSession/,
-  );
+  // The inline card is the only write/Edit review entry: the store must not
+  // create, activate, or reveal a Review tab when a workspace edit completes.
+  assert.doesNotMatch(storeSource, /shouldOpenReviewArtifact|toolWorkPanelTab/);
   assert.doesNotMatch(storeSource, /workspaceReviewSessions/);
 });
 

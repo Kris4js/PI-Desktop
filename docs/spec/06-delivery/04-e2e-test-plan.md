@@ -2648,7 +2648,8 @@ Each scenario is documented in this format:
   collapses the
   panel and no tab is created or deleted; a third press must restore the same
   context. 2) Open two distinct file artifacts, the same first file again,
-  a URL preview, and a completed Bash row. 3) Verify the header is a tablist:
+  a URL preview, and a completed Bash row. Complete an agent Write/Edit turn and
+  confirm the panel's open state, tab set, and active tab are unchanged. 3) Verify the header is a tablist:
   open enough tabs to overflow it, confirm only the strip scrolls and the `+`
   trigger stays visible, activate the scrolled-away tab, and close tabs with
   hover/focus `×` and middle-click. 4) Click `+` twice and verify each click
@@ -2686,9 +2687,11 @@ Each scenario is documented in this format:
   committed width without creating a resource tab and collapses it again on the
   next press while retaining that context,
   and the shortcut does nothing without an active session or while Settings is
-  open. Each artifact atomically opens the docked third column and creates or
-  activates one resource; file resources are path-keyed and repeated resources
-  deduplicate. Opening, collapse, and
+  open. Each file, URL, or Browser-preview artifact atomically opens the docked
+  third column and creates or activates one resource; file resources are
+  path-keyed and repeated resources deduplicate, while a successful workspace
+  Write/Edit is not an artifact trigger: it opens nothing, creates no tab, and
+  leaves the visible session's panel state and active tab untouched. Opening, collapse, and
   closing animate the panel's width/flex allocation with its bounded
   opacity/slide, so MainChat reflows continuously without a pre-animation jump.
   Opening the panel, collapsing it, or committing a divider resize updates the
@@ -2737,10 +2740,13 @@ Each scenario is documented in this format:
 - **Preconditions**: A project-bound Agent session with a writable workspace;
   no Git repository is required.
 - **Steps**: 1) Ask the active agent to edit an existing file and create a new
-  file in session A. 2) Expand the activity group and inspect each review card
+  file in session A. 2) Confirm the work panel does not open, reveal, or change
+  tabs: its open state, tab set, and active tab are the same before and after
+  the edit. Expand the activity group and inspect each review card
   directly after its corresponding tool row; verify every card starts
   collapsed with its added/modified status and +/− counts visible in the
-  header, then expand it to verify the exact hunks. 3) Commit the files
+  header, then expand it to verify the exact hunks. 3) Open Review from the New
+  launcher's Review row and confirm it lists A's recorded changes. Commit the files
   outside the app, close and reopen the Review panel, then reload session A.
   4) Verify the same cards
   and counts remain because they come from the transcript messages. 5) Use a
@@ -2750,7 +2756,8 @@ Each scenario is documented in this format:
   Switch to session B and a background project session, then return to A. 8)
   Repeat with failed, denied, and scratch writes.
 - **Expected**: Each successful workspace Write/Edit creates one message-owned
-  review record and one adjacent keyboard-accessible card; the card is never a
+  review record and one adjacent keyboard-accessible card without opening,
+  revealing, or activating the work panel or its Review tab; the card is never a
   bottom/global entry. Every review card, inline and in the Review tab, is
   collapsed by default and expands on demand. The Review tab lists A's
   chronological recorded changes, independent of Git status, repository
@@ -3910,7 +3917,7 @@ Each scenario is documented in this format:
   request in A as well. 5) Open B explicitly, resolve only B's request, then
   return to A and resolve A's request. 6) Rapidly select A then B while session
   details load in opposite completion order. 7) While B is loading, resolve A's
-  Write/Edit request so its tool completion creates Review, then let B emit a
+  Write/Edit request so its tool completion records only its transcript card, then let B emit a
   BrowserPreview artifact while A is visible. Switch back to each session.
 - **Expected**: B's background events update only B's row and retained state;
   they do not change A's active session/project/page, transcript, draft, scroll,
@@ -3918,9 +3925,9 @@ Each scenario is documented in this format:
   inline card with its original countdown. Both requests remain independently
   actionable, and resolving B does not clear A. The final rapid selection stays
   on B even when A's older load finishes later. Only explicit notification or
-  session activation may navigate. A's post-approval Review is retained only in
-  A without a transient open/close flash in B; B's BrowserPreview carries B's
-  session identity, updates only B's retained Browser resource, and never opens,
+  session activation may navigate. A's post-approval change record stays in A's
+  transcript without opening, activating, or flashing any panel; B's
+  BrowserPreview carries B's session identity, updates only B's retained Browser resource, and never opens,
   navigates, focuses, or resizes A's panel. Explicitly returning to either
   session restores its own open state, tabs, active tab, and Browser resource.
 - **Specs linked**: `04-ux/01-ui-ia.md`, `04-ux/03-permission-ux.md`,
@@ -6195,8 +6202,9 @@ Each scenario is documented in this format:
      Uninstall action.
   2. Reveal the work panel and click `+` to create a New launcher tab. Confirm
      its rows include Review and the plugin-contributed Files and Browser views.
-     Trigger an agent edit and confirm Review opens itself under Open resources
-     — it is an artifact surface, not a launcher entry.
+     Trigger an agent edit and confirm the panel does not open, reveal, or
+     activate anything: Review stays a launcher row and the edit appears only on
+     its transcript card.
   3. Open the Files view. Confirm the tree lists the project, expands
      directories lazily, and omits `node_modules`, `.git`, and `.env`.
   4. Confirm the toolbar shows the project name, a search field, and Refresh.
@@ -7008,9 +7016,9 @@ This test plan spec is accepted when:
 - Make A and B pending together, resolve each independently, and confirm neither
   action removes or changes the other card.
 - Resolve A's Write/Edit permission and switch to B before completion. Expect no
-  transient Review panel in B and no panel/window flash; returning to A restores
-  A's resulting Review tab and prior panel selection, while B's tabs and Browser
-  resource remain unchanged.
+  Review tab or panel/window change in either session: the edit records only A's
+  transcript card, so returning to A restores its prior panel selection, while
+  B's tabs and Browser resource remain unchanged.
 
 ### US-UI-69 Sidebar type balance (D144/D161)
 - Open the expanded sidebar in light and dark themes at default and minimum

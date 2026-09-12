@@ -77,9 +77,9 @@ destination, chat as the home surface, tools and permissions inline.
   `Cmd/Ctrl+]`); no back/forward buttons are rendered. The main titlebar has no
   notification action; the durable local inbox opens from the sidebar footer
   bell instead (D130/D117).
-- **Work panel**: docked right column (not an overlay) opened by an artifact,
-  the viewport-fixed toggle, or `Cmd/Ctrl + J`. File, URL, browser-preview, and
-  successful workspace-edit artifacts create their resources atomically. The
+- **Work panel**: docked right column (not an overlay) opened by a file, URL,
+  or browser-preview artifact, the viewport-fixed toggle, or `Cmd/Ctrl + J`.
+  Those artifacts create their resources atomically. The
   46px content header exposes a tablist and a fixed `+` trigger. Its tokenized
   60px right-side safe lane plus separated action rail keep the trigger distinct
   from the viewport-fixed work-panel toggle. Clicking `+` creates and activates
@@ -92,11 +92,12 @@ destination, chat as the home surface, tools and permissions inline.
   revealing it without creating a resource tab and collapsing it without
   discarding one; the create trigger remains unavailable while the panel is
   closed. Closing the final tab keeps the panel open and shows the New launcher.
-  A
-  successful active-session workspace Write/Edit artifact opens Review;
-  scratch, failed, and background-session writes never steal focus. The outer
-  inner divider resizes the panel from 244px to 720px; moving it left takes
-  more space from MainChat and moving it right gives space back. The sole
+  A successful workspace Write/Edit records no panel resource of its own: the
+  change stays on its message-owned inline card, and Review opens only from the
+  New launcher's Review row; scratch, failed, and background-session writes
+  never steal focus. The outer inner divider resizes the panel from 244px to
+  720px; moving it left takes more space from MainChat and moving it right
+  gives space back. The sole
   panel-level control is the viewport-fixed toggle; each session retains its own runtime
   open state, tab set, active tab, and Browser resource in renderer memory.
   Selecting another session swaps the visible panel context without deleting
